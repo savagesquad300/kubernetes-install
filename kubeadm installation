@@ -1,0 +1,117 @@
+To install kubeadm on ubuntu, follow the steps below.
+before the installation, disable swap with the command below
+become a root user,
+disable swap with the command below
+swapoff -a
+sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+
+first, we have to install a container runtime and we use containerd
+use the ink below to install docker and the containerd package
+https://docs.docker.com/engine/install/ubuntu/
+
+Alternatively you can install containerd by installing the binary with the command below
+wget https://github.com/containerd/containerd/releases/download/v1.7.7/containerd-1.7.7-linux-amd64.tar.gz
+tar Cxzvf /usr/local containerd-1.7.7-linux-amd64.tar.gz
+wget https://raw.githubusercontent.com/containerd/containerd/main/containerd.service
+mkdir -p /usr/local/lib/systemd/system
+mv containerd.service /usr/local/lib/systemd/system/containerd.service
+systemctl daemon-reload
+systemctl enable --now containerd
+
+next you have to install runc
+wget https://github.com/opencontainers/runc/releases/download/v1.1.9/runc.amd64
+install -m 755 runc.amd64 /usr/local/sbin/runc
+
+To install CNI for containerd, use the command below
+wget https://github.com/containernetworking/plugins/releases/download/v1.3.0/cni-plugins-linux-amd64-v1.3.0.tgz
+Then you have tomake a directory and unpack the downloaded file to the directory with the command below
+mkdir -p /opt/cni/bin
+sudo tar Cxzvf /opt/cni/bin cni-plugins-linux-amd64-v1.3.0.tgz
+
+next you have to install crictl with the command below
+VERSION="v1.26.0" # check latest version in /releases page
+wget https://github.com/kubernetes-sigs/cri-tools/releases/download/$VERSION/crictl-$VERSION-linux-amd64.tar.gz
+sudo tar zxvf crictl-$VERSION-linux-amd64.tar.gz -C /usr/local/bin
+rm -f crictl-$VERSION-linux-amd64.tar.gz
+
+cat <<EOF | sudo tee /etc/crictl.yaml
+runtime-endpoint: unix:///run/containerd/containerd.sock
+image-endpoint: unix:///run/containerd/containerd.sock
+timeout: 2
+debug: false
+pull-image-on-create: false
+EOF
+
+Next, fowarding IPV4 and letting iptables see bridged traffic
+execute the following commands
+
+cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+overlay
+br_netfilter
+EOF
+
+sudo modprobe overlay
+sudo modprobe br_netfilter
+
+# sysctl params required by setup, params persist across reboots
+cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-iptables  = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward                 = 1
+EOF
+
+# Apply sysctl params without reboot
+sudo sysctl --system
+
+Verify that the br_netfilter, overlay modules are loaded by running the following commands:
+
+lsmod | grep br_netfilter
+lsmod | grep overlay
+
+Verify that the net.bridge.bridge-nf-call-iptables, net.bridge.bridge-nf-call-ip6tables,
+and net.ipv4.ip_forward system variables are set to 1 in your sysctl config by running the following command:
+
+sysctl net.bridge.bridge-nf-call-iptables net.bridge.bridge-nf-call-ip6tables net.ipv4.ip_forward
+
+Next, You should install kubectl, kubeadm and kubelete
+For this use the commands in the page below. Go to the install kubeadm, kubectl and kublete section.
+https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
+
+you can also install kubelete, kubeadm and kubectl using the commands below
+
+apt-get update && sudo apt-get install -y apt-transport-https curl
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+cat <<EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list
+deb https://apt.kubernetes.io/ kubernetes-xenial main
+EOF
+apt update -y
+apt install -y kubelet kubeadm kubectl
+
+After the installation is successful, next we have to scoll all the way down in the above link and choose whats next: creating a cluster with kubeadm
+The link is shown below where you can get all the commands
+https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/
+
+Use the command below to bootstrap the kubeadm cluster from the master node
+kubeadm config images pull
+kubeadm init
+
+Finally after running the kubeadm init command, if successful a kubeconfig file should be created and you will have to run the command below 
+to enable kubectl communicate with the kubeconfig file
+
+ mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+After this we have to deploy a pod networking interface using the command below
+kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+After running the kubeadm init command, a join command will the generated which you can then run on the worker nodes
+this is how they will be able to join the kubeadm cluster.
+Also, remember to run all the commands all the way to the kubectl, kubeadm and kubelet installation for the worker nodes.
+
+if you have issues with joining use kubeadm reset to reset the node.
+
+For more info regarding this documentation, visit the youtube link below
+https://www.youtube.com/watch?v=z_w3me8tmJA&t=2067s
+
+
+
