@@ -1,4 +1,17 @@
 To install kubeadm on ubuntu, follow the steps below.
+You will have to open the following ports for the master node
+6443/tcp for kubernetes api server
+2379-2380 for etcd server client API
+6783/tcp, 6784/udp for weavenet CNI
+10248-10260 for kubelete API, kube-scheduler, kube-controller-manager, read-only-kubelete API, kubelet health
+80, 8080, 443 Generic Ports
+30000-32767 for NodePort services
+
+On slave nodes
+6783/tcp, 6784/udp for weavenet CNI
+10248-10260 for kubelete API,  kube-scheduler, kube-controller-manager, read-only-kubelete API, kubelet health
+30000-32767 for NodePort services.
+
 before the installation, disable swap with the command below
 become a root user,
 disable swap with the command below
@@ -102,7 +115,7 @@ to enable kubectl communicate with the kubeconfig file
   sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
   sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
-After this we have to deploy a pod networking interface using the command below
+After this we have to deploy a pod networking interface cni using the command below
 kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
 After running the kubeadm init command, a join command will the generated which you can then run on the worker nodes
 this is how they will be able to join the kubeadm cluster.
