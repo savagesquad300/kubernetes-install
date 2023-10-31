@@ -131,5 +131,10 @@ if you have issues with joining use kubeadm reset to reset the node.
 For more info regarding this documentation, visit the youtube link below
 https://www.youtube.com/watch?v=z_w3me8tmJA&t=2067s
 
+Incase your kube-system pods keep failing do the following;
+sudo mkdir /etc/containerd
+nano /etc/containerd/config.toml
+
+When you nano config.toml add the content of the config.toml in this repository.
 
 
