@@ -1,5 +1,10 @@
 To install kubeadm on ubuntu, follow the steps below.
 You will have to open the following ports for the master node
+
+To check what ports are open on your ubuntu machine use the following commands
+sudo apt install net-tools
+sudo netstat -ntlp
+
 6443/tcp for kubernetes api server
 2379-2380 for etcd server client API
 6783/tcp, 6784/udp for weavenet CNI
