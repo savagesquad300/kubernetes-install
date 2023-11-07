@@ -122,6 +122,10 @@ to enable kubectl communicate with the kubeconfig file
 
 After this we have to deploy a pod networking interface cni using the command below
 kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+
+You can use calico instead using the command below
+kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+
 After running the kubeadm init command, a join command will the generated which you can then run on the worker nodes
 this is how they will be able to join the kubeadm cluster.
 Also, remember to run all the commands all the way to the kubectl, kubeadm and kubelet installation for the worker nodes.
