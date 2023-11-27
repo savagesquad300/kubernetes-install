@@ -1,0 +1,12 @@
+To add new worker and control plane nodes, follow the steps
+- Run the kubeinstall.sh script on the new node and thus install all kubernetes components
+You must enable ssh connection between and across all kubernetes nodes
+- Head to the master node and run the command
+$sudo kubeadm token create --print-join-command
+run the output in the node you want to add to the cluster as a worker node.
+- To join a master node, from the output of the command we got eatlier we have to add some more arguments as shown below;
+--control-plane  --certificate-key <CERT_KEY>
+How do you generate the certificate key??
+Run the command below
+$kubeadm certs certificate-key
+Enjoy!!!
