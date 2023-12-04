@@ -1,0 +1,26 @@
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.12/config/manifests/metallb-native.yaml
+Create an IP pool object for metallb as shown below
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: first-pool
+  namespace: metallb-system
+spec:
+  addresses:
+  - 172.2x.xxx.77-172.2x.xxx.79
+
+---
+
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: homelab-l2
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+  - first-pool
+
+---
+From the above config map you should pass the ip address range you want to use as a pool of loadbalancer ip addresses.
+You can create the IPaddrespool and L2advertisement on the same yaml file
