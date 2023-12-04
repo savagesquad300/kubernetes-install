@@ -10,3 +10,4 @@ How do you generate the certificate key??
 Run the command below
 $kubeadm certs certificate-key
 Enjoy!!!
+Remember to advertise the control plane Ip while you use the loadbalancer ip as the api endpoint
