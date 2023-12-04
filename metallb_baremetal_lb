@@ -1,3 +1,4 @@
+Note that you can use a tool called sipcalc to know the number of free addresses in your ip address range
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.12/config/manifests/metallb-native.yaml
 Create an IP pool object for metallb as shown below
 ---
