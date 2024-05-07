@@ -141,6 +141,10 @@ nano /etc/containerd/config.toml
 
 When you nano config.toml add the content of the config.toml in this repository.
 
+After adding the config.toml, you have to then run the following commands
+systemctl restart containerd
+systemctl restart kubelet
+
 If you can't deploy workload on the nodes, check if the nodes are tainted; use the command below;
 kubectl get nodes -o=custom-columns=NAME:.metadata.name,TAINTS:.spec.taints
 
